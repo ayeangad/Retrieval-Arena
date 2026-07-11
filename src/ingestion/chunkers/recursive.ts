@@ -47,6 +47,8 @@ export class RecursiveChunker implements Chunker {
 
     const allUnits = [...codeBlocks, ...paragraphs].sort((a, b) => a.charStart - b.charStart)
 
+    console.log(allUnits.map(u => ({ type: u.type, words: countWords(u.content) })))
+
     function countWords(text: string): number {
       return text.split(/\s+/).filter(w => w.length > 0).length
     }
@@ -115,8 +117,6 @@ export class RecursiveChunker implements Chunker {
         tokenCount: 0
       })
     }
-
-
 
     return finalChunks
   }

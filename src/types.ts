@@ -19,5 +19,11 @@ export interface Chunker {
   chunk(doc: Document): Chunk[]
 }
 
+export interface TextUnit {
+  type: "paragraph" | "codeblock";
+  content: string;
+  charStart: number;
+  charEnd: number;
+}
 
 
