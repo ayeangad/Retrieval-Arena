@@ -35,5 +35,4 @@ test("document shorter than chunk size", () => {
   expect(chunks.length).toBe(1)
   expect(chunks[0]?.charStart).toBe(0)
   expect(chunks[0]?.charEnd).toBe(200)
-
 })
