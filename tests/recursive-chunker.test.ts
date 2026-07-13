@@ -2,7 +2,7 @@ import { test, expect } from "bun:test"
 import { RecursiveChunker } from "../src/ingestion/chunkers/recursive"
 
 
-test("Recursive chunker keeps code blocks intact and respects word budget", () => {
+test("Recursive chunker keeps code blocks intact and respects word budget", async () => {
   const doc = {
     id: "doc1",
     source: "test",
@@ -45,7 +45,7 @@ Finally, remember that a successful chunker is not judged solely by the number o
   }
 
   const chunker = new RecursiveChunker()
-  const chunks = chunker.chunk(doc)
+  const chunks = await chunker.chunk(doc)
 
   expect(chunks.length).toBe(2)
 

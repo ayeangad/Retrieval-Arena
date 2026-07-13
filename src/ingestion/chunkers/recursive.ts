@@ -6,7 +6,7 @@ export class RecursiveChunker implements Chunker {
   constructor() {
     this.name = `recursive`
   }
-  chunk(doc: Document): Chunk[] {
+  async chunk(doc: Document): Promise<Chunk[]> {
 
     let searchFrom = 0
     const codeBlocks: TextUnit[] = []

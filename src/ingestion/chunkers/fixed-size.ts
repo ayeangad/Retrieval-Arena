@@ -6,7 +6,7 @@ export class FixedSizeChunker implements Chunker {
   constructor(private chunkSize: number, private overlap: number) {
     this.name = `fixed-size-${chunkSize}`
   }
-  chunk(doc: Document): Chunk[] {
+  async chunk(doc: Document): Promise<Chunk[]> {
 
     let currentStart = 0
     const chunks: Chunk[] = []

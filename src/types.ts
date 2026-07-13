@@ -16,7 +16,7 @@ export interface Chunk {
 
 export interface Chunker {
   readonly name: string;
-  chunk(doc: Document): Chunk[]
+  chunk(doc: Document): Promise<Chunk[]>
 }
 
 export interface TextUnit {

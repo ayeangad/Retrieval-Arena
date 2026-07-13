@@ -35,7 +35,7 @@ Finally, remember that a successful chunker is not judged solely by the number o
 }
 
 const chunker = new RecursiveChunker()
-const chunks = chunker.chunk(fakeDoc)
+const chunks = await chunker.chunk(fakeDoc)
 
 for (const c of chunks) {
   const words = c.content.split(/\s+/).filter(w => w.length > 0).length
