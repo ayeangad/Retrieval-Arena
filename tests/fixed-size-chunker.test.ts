@@ -19,7 +19,7 @@ test("produces correct offsets for a 1200-char document", () => {
 
 
 test("document with no content", () => {
-  const doc = { id: "doc1", source: "test", content: "" }
+  const doc = { id: "doc2", source: "test", content: "" }
   const chunker = new FixedSizeChunker(500, 50)
   const chunks = chunker.chunk(doc)
 
@@ -28,7 +28,7 @@ test("document with no content", () => {
 
 
 test("document shorter than chunk size", () => {
-  const doc = { id: "doc1", source: "test", content: "a".repeat(200) }
+  const doc = { id: "doc3", source: "test", content: "a".repeat(200) }
   const chunker = new FixedSizeChunker(500, 50)
   const chunks = chunker.chunk(doc)
 
