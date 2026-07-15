@@ -1,4 +1,5 @@
 import type { Chunk, Chunker, Document, TextUnit } from "../../types";
+import { countTokens } from "../../utils/tokenizer";
 
 const strategy = "recursive"
 export class RecursiveChunker implements Chunker {
@@ -19,7 +20,7 @@ export class RecursiveChunker implements Chunker {
       if (close === -1) break;
 
       const content = doc.content.slice(open, close + 3)
-      codeBlocks.push({ type: "codeblock", content, charStart: open, charEnd: close + 3 })
+      codeBlocks.push({ type: "codeblock", tokenCount: countTokens(content), content, charStart: open, charEnd: close + 3 })
 
       searchFrom = close + 3
     }
@@ -40,8 +41,9 @@ export class RecursiveChunker implements Chunker {
         const pieceStart = piecePos
         const pieceEnd = pieceStart! + piece.length
         piecePos = pieceEnd + 2
-        if (piece.trim().length === 0) return
-        paragraphs.push({ type: "paragraph", content: piece, charStart: pieceStart!, charEnd: pieceEnd })
+        const trimmed = piece.trim()
+        if (trimmed.length === 0) return
+        paragraphs.push({ type: "paragraph", tokenCount: countTokens(trimmed), content: trimmed, charStart: pieceStart!, charEnd: pieceEnd })
       })
     }
 
@@ -108,6 +110,7 @@ export class RecursiveChunker implements Chunker {
       const charEnd = last.charEnd
       const idInput = doc.id + String(charStart) + String(charEnd) + strategy
       const id = String(Bun.hash(String(idInput)))
+      const tokenCount = countTokens(text)
 
       finalChunks.push({
         id,
@@ -116,7 +119,7 @@ export class RecursiveChunker implements Chunker {
         strategy,
         charStart,
         charEnd,
-        tokenCount: 0
+        tokenCount
       })
     }
 

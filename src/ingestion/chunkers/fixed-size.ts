@@ -1,4 +1,5 @@
 import type { Chunk, Chunker, Document } from "../../types"
+import { countTokens } from "../../utils/tokenizer"
 
 const strategy = "fixed-size"
 export class FixedSizeChunker implements Chunker {
@@ -17,6 +18,8 @@ export class FixedSizeChunker implements Chunker {
       const idInput = doc.id + String(currentStart) + String(currentEnd) + strategy
       const id = String(Bun.hash(String(idInput)))
 
+      const tokenCount = countTokens(content)
+
       const chunk: Chunk = {
         id: id,
         documentId: doc.id,
@@ -24,7 +27,7 @@ export class FixedSizeChunker implements Chunker {
         strategy,
         charStart: currentStart,
         charEnd: currentEnd,
-        tokenCount: 0
+        tokenCount
       }
       chunks.push(chunk)
     }
