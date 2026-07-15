@@ -103,10 +103,12 @@ export class RecursiveChunker implements Chunker {
       if (!first || !last) {
         throw new Error("cannot close on empty chunk")
       }
+
       const charStart = first.charStart
       const charEnd = last.charEnd
       const idInput = doc.id + String(charStart) + String(charEnd) + strategy
       const id = String(Bun.hash(String(idInput)))
+
       finalChunks.push({
         id,
         documentId: doc.id,
