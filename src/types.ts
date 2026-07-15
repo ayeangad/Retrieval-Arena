@@ -20,10 +20,11 @@ export interface Chunker {
 }
 
 export interface TextUnit {
-  type: "paragraph" | "codeblock";
+  type: "paragraph" | "codeblock" | "sentence";
   content: string;
   charStart: number;
   charEnd: number;
+  tokenCount: number;
 }
 
 
