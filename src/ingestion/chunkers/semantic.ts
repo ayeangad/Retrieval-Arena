@@ -10,22 +10,58 @@ export class SemanticChunker implements Chunker {
   }
   async chunk(doc: Document): Promise<Chunk[]> {
 
+    function findProtectedRanges(text: string): Array<[number, number]> {
+      const ranges: Array<[number, number]> = [];
+      const patterns = [/`[^`]*`/g, /\[[^\]]*\]\([^)]*\)/g];
+      for (const re of patterns) {
+        for (const m of text.matchAll(re)) {
+          ranges.push([m.index!, m.index! + m[0].length]);
+        }
+      }
+      return ranges;
+    }
+
+    function isProtected(index: number, ranges: Array<[number, number]>): boolean {
+      return ranges.some(([start, end]) => index >= start && index < end);
+    }
+
+
+    const protectedRange = findProtectedRanges(doc.content)
+
     let pos = 0
     const sentenceBlocks: TextUnit[] = []
 
-
     while (pos < doc.content.length) {
-      const relativeIndex = doc.content.slice(pos).search(/[.!?]/)
-      if (relativeIndex === -1) {
+      let searchPos = pos
+      let punctuationPos = -1
+
+      while (searchPos < doc.content.length) {
+        const relativeIndex = doc.content.slice(searchPos).search(/[.!?]/)
+        if (relativeIndex === -1) break;
+
+        const candidate = searchPos + relativeIndex
+
+        if (isProtected(candidate, protectedRange)) {
+          searchPos = candidate + 1
+          continue;
+        }
+        punctuationPos = candidate
         break;
       }
 
-      const punctuationPos = pos + relativeIndex
-      const sentenceText = doc.content.slice(pos, punctuationPos + 1)
+      if (punctuationPos === -1) break;
 
-      sentenceBlocks.push({ type: "sentence", tokenCount: countTokens(sentenceText.trim()), content: sentenceText.trim(), charStart: pos, charEnd: punctuationPos + 1 })
+      const sentenceText = doc.content.slice(pos, punctuationPos + 1).trim()
+      sentenceBlocks.push({
+        type: "sentence",
+        tokenCount: countTokens(sentenceText),
+        content: sentenceText,
+        charStart: pos,
+        charEnd: punctuationPos + 1
+      })
       pos = punctuationPos + 1
     }
+
 
     if (pos < doc.content.length) {
       const content = doc.content.slice(pos)
