@@ -49,25 +49,20 @@ export class RecursiveChunker implements Chunker {
 
     const allUnits = [...codeBlocks, ...paragraphs].sort((a, b) => a.charStart - b.charStart)
 
-    console.log(allUnits.map(u => ({ type: u.type, words: countWords(u.content) })))
-
-    function countWords(text: string): number {
-      return text.split(/\s+/).filter(w => w.length > 0).length
-    }
-
     let currentUnits: TextUnit[] = []
-    let currentWords = 0
+    let currentTokens = 0
     const finalChunks: Chunk[] = []
 
     for (const unit of allUnits) {
-      const unitWords = countWords(unit.content)
-      const wouldExceed = currentWords + unitWords > 400
+      const wouldExceed = currentTokens + unit.tokenCount > 400
 
-      if (currentWords >= 300 && wouldExceed) {
+      if (currentTokens >= 300 && wouldExceed) {
         const text = currentUnits.map(unit => unit.content).join("\n\n");
 
         const first = currentUnits[0]
         const last = currentUnits.at(-1)
+
+        const tokenCount = countTokens(text)
 
         if (!first || !last) {
           throw new Error("cannot close an emply chunk")
@@ -86,15 +81,15 @@ export class RecursiveChunker implements Chunker {
           strategy,
           charStart,
           charEnd,
-          tokenCount: 0
+          tokenCount
         })
 
         currentUnits = [unit]
-        currentWords = unitWords
+        currentTokens = unit.tokenCount
 
       } else {
         currentUnits.push(unit)
-        currentWords += unitWords
+        currentTokens += unit.tokenCount
       }
     }
 
