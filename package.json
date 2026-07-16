@@ -12,6 +12,7 @@
   "dependencies": {
     "citty": "^0.2.2",
     "openai": "^6.46.0",
+    "postgres": "^3.4.9",
     "tiktoken": "^1.0.22"
   }
 }
