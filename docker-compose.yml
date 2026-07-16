@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: retrieval-arena-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: arena
+      POSTGRES_PASSWORD: arena_dev_password
+      POSTGRES_DB: retrieval_arena
+    ports:
+      - "5432:5432"
+    volumes:
+      - arena_pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U arena -d retrieval_arena"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  arena_pgdata:
