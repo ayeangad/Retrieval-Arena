@@ -33,3 +33,24 @@ export interface Embedder {
   embed(texts: string[]): Promise<number[][]>;
 }
 
+export interface RetrievalResult {
+  documentId: string;
+  content: string;
+  charStart: number;
+  charEnd: number;
+  score: number;
+}
+
+
+export interface Retrieval {
+  readonly name: string;
+  retrieve(
+    parameteres: {
+      query: string;
+      k: number;
+    }
+  ): Promise<RetrievalResult[]>
+}
+
+
+
