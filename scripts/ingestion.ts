@@ -1,10 +1,10 @@
 import { readFileSync, readdirSync } from "fs";
 import path from "path";
-
 import { sql } from "../src/db/client";
 import { RecursiveChunker } from "../src/ingestion/chunkers/recursive"
 import { OpenAIEmbedder } from "../src/embeddings/openai"
 import type { Document } from "../src/types"
+import { countTermFrequencies, tokenize } from "../src/retrieval/tokenize";
 
 const CORPUS_DIR = "./data";
 const EMBEDDING_MODEL = "text-embedding-3-small";
@@ -44,6 +44,17 @@ async function main() {
         VALUES (${chunk.id}, ${chunk.documentId}, ${chunk.strategy}, ${chunk.content}, ${chunk.charStart}, ${chunk.charEnd}, ${chunk.tokenCount})
         ON CONFLICT (id) DO NOTHING
       `;
+
+      const tokenized = tokenize(chunk.content)
+      const termCounts = countTermFrequencies(tokenized)
+
+      for (const [term, count] of termCounts) {
+        await sql`
+          INSERT INTO term_frequencies (term, chunk_id, term_count)
+          VALUES (${term}, ${chunk.id}, ${count})
+          ON CONFLICT (term, chunk_id) DO NOTHING
+        `
+      }
     }
 
     const embeddings = await embedder.embed(chunks.map((c) => c.content));
