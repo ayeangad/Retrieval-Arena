@@ -38,11 +38,13 @@ export interface Embedder {
 }
 
 export interface RetrievalResult {
+  chunkId: string;
   documentId: string;
   content: string;
   charStart: number;
   charEnd: number;
   score: number;
+  retrieverName: string;
 }
 
 
