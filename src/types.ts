@@ -1,3 +1,7 @@
+export type TextUnitType = "paragraph" | "codeblock" | "sentence"
+export type MatchingTerm = { term: string, count: number }
+
+
 export interface Document {
   id: string;
   source: string;
@@ -20,7 +24,7 @@ export interface Chunker {
 }
 
 export interface TextUnit {
-  type: "paragraph" | "codeblock" | "sentence";
+  type: TextUnitType
   content: string;
   charStart: number;
   charEnd: number;
