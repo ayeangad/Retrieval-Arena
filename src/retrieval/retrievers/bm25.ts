@@ -39,13 +39,14 @@ function scoreTerm(
 }
 
 
-
 export function bm25Search(
   rows: { term: string; chunk_id: string; term_count: number; df: number }[],
   chunks: { id: string; token_count: number }[],
   N: number,
   avgDocLen: number,
-  k: number
+  k: number,
+  k1: number = 1.2,
+  b: number = 0.75
 ): { chunkId: string; score: number }[] {
 
   const grouped = groupByChunk(rows);
@@ -60,7 +61,7 @@ export function bm25Search(
 
     for (const match of matches) {
       const df = dfMap.get(match.term) ?? 0;
-      totalScore += scoreTerm(match.count, df, N, docLen, avgDocLen);
+      totalScore += scoreTerm(match.count, df, N, docLen, avgDocLen, k1, b);
     }
 
     scoredChunks.push({ chunkId, score: totalScore });
