@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS chunks (
   char_start INTEGER NOT NULL,
   char_end INTEGER NOT NULL,
   token_count INTEGER NOT NULL,
+  ALTER TABLE chunks ADD COLUMN original_context TEXT;
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 

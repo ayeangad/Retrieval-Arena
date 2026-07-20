@@ -16,6 +16,7 @@ export interface Chunk {
   charStart: number;
   charEnd: number;
   tokenCount: number;
+  originalContext?: string;
 }
 
 export interface Chunker {

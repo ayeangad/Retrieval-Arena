@@ -1,7 +1,7 @@
 import { VectorRetriever } from "../src/retrieval/retrievers/vector";
 import { BM25Retriever } from "../src/retrieval/retrievers/bm25retriever";
 import { tokenize } from "../src/retrieval/tokenize";
-import { HybridRetrieval } from "../src/retrieval/retrievers/hybrid";
+import { HybridRetrieval } from "../src/retrieval/retrievers/hybridretriever";
 
 async function runTest() {
   const query = "what would happen if my invoice is configured to be billed through automatic charges";
