@@ -20,6 +20,7 @@ export class VectorRetriever implements Retrieval {
 
     const rows = await sql`
       SELECT
+        chunks.id,
         chunks.document_id,
         chunks.content,
         chunks.char_start,
@@ -33,15 +34,15 @@ export class VectorRetriever implements Retrieval {
     `;
 
     return rows.map((row) => ({
+      chunkId: row.chunk_id,
       documentId: row.document_id,
       content: row.content,
       charStart: row.char_start,
       charEnd: row.char_end,
       score: row.distance,
+      retrieverName: this.name
     }));
   }
-
-
 }
 
 
