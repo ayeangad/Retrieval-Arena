@@ -5,6 +5,7 @@ import { RecursiveChunker } from "../src/ingestion/chunkers/recursive"
 import { OpenAIEmbedder } from "../src/embeddings/openai"
 import type { Document } from "../src/types"
 import { countTermFrequencies, tokenize } from "../src/retrieval/tokenize";
+import { contextualizeChunks } from "../src/ingestion/contextualize";
 
 const CORPUS_DIR = "./data";
 const EMBEDDING_MODEL = "text-embedding-3-small";
@@ -27,21 +28,28 @@ async function main() {
   const embedder = new OpenAIEmbedder()
 
   for (const doc of docs) {
-    console.log(`Ingesting ${doc.content ?? doc.id}...`);
+    console.log(`Ingesting ${doc.id}...`);
 
     await sql`
       INSERT INTO documents (id, source_path, content, metadata)
-      VALUES (${doc.id}, ${doc.content ?? null}, ${doc.content}, ${sql.json(doc.content ?? {})})
+      VALUES (${doc.id}, ${doc.source}, ${doc.content}, ${sql.json({})})
       ON CONFLICT (id) DO NOTHING
     `;
 
-    const chunks = await chunker.chunk(doc);
+    let chunks = await chunker.chunk(doc)
     if (chunks.length === 0) continue;
 
+    chunks = await contextualizeChunks(chunks, doc)
     for (const chunk of chunks) {
       await sql`
-        INSERT INTO chunks (id, document_id, strategy, content, char_start, char_end, token_count)
-        VALUES (${chunk.id}, ${chunk.documentId}, ${chunk.strategy}, ${chunk.content}, ${chunk.charStart}, ${chunk.charEnd}, ${chunk.tokenCount})
+        INSERT INTO chunks (
+          id, document_id, strategy, content, 
+          char_start, char_end, token_count, original_context
+        )
+        VALUES (
+          ${chunk.id}, ${chunk.documentId}, ${chunk.strategy}, ${chunk.content}, 
+          ${chunk.charStart}, ${chunk.charEnd}, ${chunk.tokenCount}, ${chunk.originalContext || null}
+        )
         ON CONFLICT (id) DO NOTHING
       `;
 
@@ -57,7 +65,11 @@ async function main() {
       }
     }
 
-    const embeddings = await embedder.embed(chunks.map((c) => c.content));
+    const embeddings = await embedder.embed(
+      chunks.map((c) =>
+        c.originalContext ? `${c.originalContext}\n\n${c.content}` : c.content
+      )
+    );
 
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i]!;
