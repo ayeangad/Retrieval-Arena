@@ -10,6 +10,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@huggingface/transformers": "^4.2.0",
     "citty": "^0.2.2",
     "openai": "^6.46.0",
     "p-limit": "^7.3.0",
