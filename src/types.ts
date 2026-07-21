@@ -1,9 +1,23 @@
 export type TextUnitType = "paragraph" | "codeblock" | "sentence"
 export type MatchingTerm = { term: string, count: number }
 
+
+export interface Contextualizer {
+  contextualize(
+    chunks: Chunk[],
+    document: Document
+  ): Promise<Chunk[]>
+}
+
 export interface RerankResult {
   chunk: Chunk;
   score: number;
+}
+
+export interface GenerateContextInput {
+  chunk: Chunk;
+  summary: string;
+  neighbors: Chunk[];
 }
 
 

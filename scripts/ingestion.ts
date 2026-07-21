@@ -5,7 +5,7 @@ import { RecursiveChunker } from "../src/ingestion/chunkers/recursive"
 import { OpenAIEmbedder } from "../src/embeddings/openai"
 import type { Document } from "../src/types"
 import { countTermFrequencies, tokenize } from "../src/retrieval/tokenize";
-import { contextualizeChunks } from "../src/ingestion/contextualize";
+import { contextualizeDocument } from "../src/ingestion/contextualizer/FullDocument.ts";
 
 const CORPUS_DIR = "./data";
 const EMBEDDING_MODEL = "text-embedding-3-small";
@@ -39,7 +39,7 @@ async function main() {
     let chunks = await chunker.chunk(doc)
     if (chunks.length === 0) continue;
 
-    chunks = await contextualizeChunks(chunks, doc)
+    chunks = await contextualizeDocument(chunks, doc)
     for (const chunk of chunks) {
       await sql`
         INSERT INTO chunks (
