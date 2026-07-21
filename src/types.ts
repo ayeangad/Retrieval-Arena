@@ -1,6 +1,11 @@
 export type TextUnitType = "paragraph" | "codeblock" | "sentence"
 export type MatchingTerm = { term: string, count: number }
 
+export interface RerankResult {
+  chunk: Chunk;
+  score: number;
+}
+
 
 export interface Document {
   id: string;
