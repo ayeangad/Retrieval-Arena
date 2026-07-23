@@ -7,7 +7,7 @@ import { SemanticChunker } from "../src/ingestion/chunkers/semantic";
 import type { Chunker, Document } from "../src/types.ts";
 
 const CORPUS_DIR = "./data";
-const SAMPLE_COUNT = 5;
+const SAMPLE_COUNT = 4;
 
 function loadSampleDocs(dir: string, count: number): Document[] {
   const files = readdirSync(dir).filter((f) => f.endsWith(".md"));
@@ -39,7 +39,8 @@ async function dumpForDoc(doc: Document, chunkers: Chunker[]) {
     console.log(`\n--- ${chunker.name} (${chunks.length} chunks) ---`);
     for (const [i, chunk] of chunks.entries()) {
       console.log(
-        `  [${i}] chars ${chunk.charStart}-${chunk.charEnd} | tokens ${chunk.tokenCount} | ${truncate(chunk.content)}`
+        ` ${chunk.id}
+        [${i}] chars ${chunk.charStart}-${chunk.charEnd} | tokens ${chunk.tokenCount} | ${truncate(chunk.content)}`
       );
     }
   }

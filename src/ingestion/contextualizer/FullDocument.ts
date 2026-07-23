@@ -34,7 +34,6 @@ async function generateContext(chunkContent: string, wholeDocument: string): Pro
 }
 
 
-
 export class FullDocumentContextualizer implements Contextualizer {
   async contextualize(
     chunks: Chunk[],
