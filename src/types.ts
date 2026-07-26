@@ -1,11 +1,21 @@
 export type TextUnitType = "paragraph" | "codeblock" | "sentence"
-export type QueryType = "factual" | "multihop" | "keyword" | "semantic"
+export type QueryType = "factual" | "multi-hop" | "keyword" | "semantic"
 export type MatchingTerm = { term: string, count: number }
 
 export interface RelevantSpan {
   documentId: string;
   charStart: number;
   charEnd: number;
+}
+
+export interface DraftGoldenExample {
+  id: string;
+  documentId: string;
+  query: string;
+  queryType: QueryType;
+  expectedAnswer: string;
+  evidenceTexts: string[];
+  notes: string;
 }
 
 export interface GoldenExample {
