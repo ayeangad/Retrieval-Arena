@@ -1,4 +1,4 @@
-import { OpenAIEmbedder } from "../src/embeddings/openai"
+import { OpenAIEmbedder } from "../src/embeddings/openai-embedder"
 
 const embedder = new OpenAIEmbedder()
 const vectors = await embedder.embed(["The cat sat on the mat.", "Stripe handles payment processing."])
