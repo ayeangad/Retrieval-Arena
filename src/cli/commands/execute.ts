@@ -7,8 +7,11 @@ import { HybridRetrieval } from "../../retrieval/retrievers/hybridretriever";
 import type { Chunk } from "../../types";
 import { printSummary } from "../output/summary";
 import { printFailures } from "../output/failures";
+import { OpenAIGenerator } from "../../generation/openai-generator";
+import { OpenAIJudge } from "../../judge/openai-judge";
 
 const K = 5;
+const CHUNKER_NAME = "fixed-size";
 
 // Load chunks
 const rows = await sql`
@@ -21,6 +24,7 @@ const rows = await sql`
     char_end,
     token_count
   FROM chunks
+  WHERE strategy = ${CHUNKER_NAME}
 `;
 
 const chunks: Chunk[] = rows.map((row) => ({
@@ -35,30 +39,38 @@ const chunks: Chunk[] = rows.map((row) => ({
 
 
 // Build retriever
-const vector = new VectorRetriever();
-const bm25 = new BM25Retriever();
-const hybrid = new HybridRetrieval(vector, bm25);
+const bm25 = new BM25Retriever()
 
 
 // change this to benchmark different retrievers
-const retriever = hybrid;
+const retriever = bm25;
 
+// build generator + judge
+const generator = new OpenAIGenerator();
+const judge = new OpenAIJudge();
+
+console.log(`Loaded ${chunks.length} chunks`);
+
+const strategies = [...new Set(chunks.map(c => c.strategy))];
+console.log("Strategies:", strategies);
 
 // Evaluate
-const evaluation = await evaluateDataset(
+const { evaluations, summary } = await evaluateDataset(
   stripeRefunds,
+  CHUNKER_NAME,
   retriever,
+  generator,
+  judge,
   chunks,
   K,
 );
 
-printSummary(evaluation.summary);
 
-printFailures(
-  evaluation,
-  chunks,
-);
+printSummary(summary)
+
+printFailures(evaluations, chunks);
 
 await sql.end();
+
 
 
