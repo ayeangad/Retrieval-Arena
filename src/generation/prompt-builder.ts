@@ -1,3 +1,4 @@
+import { formatContext } from "../format-context";
 import type { ContextChunk, PromptMessage } from "../types";
 
 
@@ -6,18 +7,7 @@ export function buildPrompt(
   query: string,
   context: ContextChunk[]
 ): PromptMessage[] {
-  const formattedContext = context.map(({ retrieval }, index) => {
-    return [
-      `=== Chunk ${index + 1} === `,
-      `Document: ${retrieval.documentId}`,
-      `Chunk ID: ${retrieval.chunkId}`,
-      `Retrieval Rank: ${retrieval.retrievalRank}`,
-      "",
-      retrieval.content.trim(),
-    ].join("\n")
-  })
-    .join("\n\n")
-
+  const formattedContext = formatContext(context)
 
   return [
     {
