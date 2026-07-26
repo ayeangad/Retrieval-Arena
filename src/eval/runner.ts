@@ -1,30 +1,34 @@
-import { evaluateRetrieval } from "./evaluator";
-import type { Chunk, DatasetEvaluation, GoldenExample, Retrieval, RetrievalEvaluation } from "../types";
-import { summarizeResults } from "./summary";
-
+import type { Chunk, GoldenExample, Judge, LLMGenerator, PipelineConfig, PipelineEvaluation, PipelineSummary, Retrieval } from "../types";
+import { summarizePipelineResults } from "./summary";
+import { evaluatePipeline } from "./pipeline";
 
 export async function evaluateDataset(
   dataset: GoldenExample[],
+  chunkerName: string,
   retriever: Retrieval,
-  chunks: Chunk[],
+  generator: LLMGenerator,
+  judge: Judge,
+  corpusChunks: Chunk[],
   k: number,
-): Promise<DatasetEvaluation> {
-  const results: RetrievalEvaluation[] = []
+): Promise<{ evaluations: PipelineEvaluation[]; summary: PipelineSummary }> {
+  const evaluations: PipelineEvaluation[] = [];
 
   for (const example of dataset) {
-    console.log(
-      `[${results.length + 1}/${dataset.length}] ${example.id}`
+    console.log(`[${evaluations.length + 1}/${dataset.length}] ${example.id}`);
+    evaluations.push(
+      await evaluatePipeline(example, retriever, generator, judge, corpusChunks, k),
     );
-
-    const result = await evaluateRetrieval(example, retriever, chunks, k)
-    results.push(result)
   }
 
-  const summary = summarizeResults(retriever.name, k, results)
+  const config: PipelineConfig = {
+    chunker: chunkerName,
+    retriever: retriever.name,
+    generator: generator.name,
+    judge: judge.name,
+    k,
+  };
 
-  return {
-    summary,
-    evaluations: results
-  }
+  const summary = summarizePipelineResults(config, evaluations);
+
+  return { evaluations, summary };
 }
-

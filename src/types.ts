@@ -1,6 +1,10 @@
+import type { JudgeResult } from "./judge/schema"
+
 export type TextUnitType = "paragraph" | "codeblock" | "sentence"
 export type QueryType = "factual" | "multi-hop" | "keyword" | "semantic"
 export type ContextRole = "retrieved" | "neighbor-before" | "neighbor-after"
+export type Correctness = "incorrect" | "partially-correct" | "correct"
+export type Faithfulness = "unfaithful" | "partially-faithful" | "faithful"
 export type MatchingTerm = { term: string, count: number }
 
 export interface RelevantSpan {
@@ -130,11 +134,6 @@ export interface RetrievalSummary {
   averageLatencyMs: number;
 }
 
-export interface DatasetEvaluation {
-  summary: RetrievalSummary;
-  evaluations: RetrievalEvaluation[];
-}
-
 
 export interface GenerationResult {
   answer: string;
@@ -176,4 +175,46 @@ export interface GenerationResult {
 export interface ContextChunk {
   retrieval: RetrievalResult;
   role: ContextRole;
+}
+
+
+export interface Judge {
+  readonly name: string;
+  judge(parameteres: {
+    query: string;
+    expectedAnswer: string;
+    generatedAnswer: string;
+    context: ContextChunk[];
+  }): Promise<JudgeResult>;
+}
+
+
+export interface PipelineEvaluation {
+  id: string;
+  query: string;
+  retrieval: RetrievalEvaluation;
+  context: ContextChunk[];
+  generation: GenerationResult;
+  judge: JudgeResult;
+}
+
+
+export interface PipelineConfig {
+  chunker: string;
+  retriever: string;
+  generator: string;
+  judge: string;
+  k: number;
+}
+
+export interface PipelineSummary {
+  config: PipelineConfig;
+  totalExamples: number;
+  retrieval: RetrievalSummary;
+  averageCorrectness: number;
+  averageFaithfulness: number;
+  averagePromptTokens: number;
+  averageCompletionTokens: number;
+  averageTotalTokens: number;
+  averageGenerationLatencyMs: number;
 }
