@@ -1,4 +1,4 @@
-import { OpenAIEmbedder } from "../../embeddings/openai";
+import { OpenAIEmbedder } from "../../embeddings/openai-embedder";
 import type { Chunk, Chunker, Document, TextUnit } from "../../types";
 import { countTokens } from "../../utils/tokenizer";
 
