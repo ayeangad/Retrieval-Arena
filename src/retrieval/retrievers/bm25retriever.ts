@@ -55,7 +55,7 @@ export class BM25Retriever implements Retrieval {
     const chunkById = new Map(chunkRows.map((c) => [c.id, c]));
 
     return scored
-      .map(({ chunkId, score }) => {
+      .map(({ chunkId, score }, index) => {
         const chunk = chunkById.get(chunkId);
         if (!chunk) return null;
         return {
@@ -64,6 +64,7 @@ export class BM25Retriever implements Retrieval {
           documentId: chunk.document_id,
           charStart: chunk.char_start,
           charEnd: chunk.char_end,
+          retrievalRank: index + 1,
           score,
           retrieverName: this.name,
         } satisfies RetrievalResult;

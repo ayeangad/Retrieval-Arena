@@ -33,12 +33,13 @@ export class VectorRetriever implements Retrieval {
       LIMIT ${parameteres.k}
     `;
 
-    return rows.map((row) => ({
+    return rows.map((row, index) => ({
       chunkId: row.id,
       documentId: row.document_id,
       content: row.content,
       charStart: row.char_start,
       charEnd: row.char_end,
+      retrievalRank: index + 1,
       score: row.distance,
       retrieverName: this.name
     }));

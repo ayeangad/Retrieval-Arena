@@ -49,9 +49,10 @@ export class HybridRetrieval implements Retrieval {
 
     results.sort((a, b) => b.score - a.score);
 
-    return results.slice(0, k).map(result => ({
+    return results.slice(0, k).map((result, index) => ({
       ...result,
-      retrieverName: this.name
+      retrieverName: this.name,
+      retrievalRank: index + 1
     }))
 
   }
