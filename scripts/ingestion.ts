@@ -2,10 +2,10 @@ import { readFileSync, readdirSync } from "fs";
 import path from "path";
 import { sql } from "../src/db/client";
 import { RecursiveChunker } from "../src/ingestion/chunkers/recursive"
-import { OpenAIEmbedder } from "../src/embeddings/openai"
+import { OpenAIEmbedder } from "../src/embeddings/openai-embedder.ts"
 import type { Document } from "../src/types"
 import { countTermFrequencies, tokenize } from "../src/retrieval/tokenize";
-import { contextualizeDocument } from "../src/ingestion/contextualizer/FullDocument.ts";
+import { FullDocumentContextualizer } from "../src/ingestion/contextualizer/FullDocument.ts";
 
 const CORPUS_DIR = "./data";
 const EMBEDDING_MODEL = "text-embedding-3-small";
@@ -39,7 +39,9 @@ async function main() {
     let chunks = await chunker.chunk(doc)
     if (chunks.length === 0) continue;
 
-    chunks = await contextualizeDocument(chunks, doc)
+    const contextualizer = new FullDocumentContextualizer()
+
+    chunks = await contextualizer.contextualize(chunks, doc)
     for (const chunk of chunks) {
       await sql`
         INSERT INTO chunks (
@@ -58,8 +60,8 @@ async function main() {
 
       for (const [term, count] of termCounts) {
         await sql`
-          INSERT INTO term_frequencies (term, chunk_id, term_count)
-          VALUES (${term}, ${chunk.id}, ${count})
+          INSERT INTO term_frequencies (term, strategy, chunk_id, term_count)
+          VALUES (${term}, ${chunk.strategy}, ${chunk.id}, ${count})
           ON CONFLICT (term, chunk_id) DO NOTHING
         `
       }

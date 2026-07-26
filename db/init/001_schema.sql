@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS chunks (
   token_count INTEGER NOT NULL,
   ALTER TABLE chunks ADD COLUMN original_context TEXT;
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+
 );
 
 CREATE INDEX IF NOT EXISTS idx_chunks_document_id ON chunks(document_id);

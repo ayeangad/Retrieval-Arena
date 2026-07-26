@@ -5,23 +5,37 @@ import { bm25Search } from "./bm25";
 
 export class BM25Retriever implements Retrieval {
   readonly name = "bm25";
-  constructor(private k1: number = 1.2, private b: number = 0.75) { }
+  constructor(private readonly strategy: string, private k1: number = 1.2, private b: number = 0.75) { }
 
   async retrieve(params: { query: string; k: number }): Promise<RetrievalResult[]> {
+    const bm25Start = performance.now();
     const terms = tokenize(params.query)
 
     if (terms.length === 0) return []
 
-    const termRows = await sql <{ term: string; chunk_id: string; term_count: number; df: number }[]>`
-      SELECT tf.term, tf.chunk_id, tf.term_count, df_table.df
+
+    const termRows = await sql<
+      { term: string; chunk_id: string; term_count: number; df: number }[]
+    >`
+      SELECT
+        tf.term,
+        tf.chunk_id,
+        tf.term_count,
+        df_table.df
       FROM term_frequencies tf
       JOIN (
-        SELECT term, COUNT(DISTINCT chunk_id) AS df
+        SELECT
+          term,
+          COUNT(DISTINCT chunk_id) AS df
         FROM term_frequencies
+        WHERE strategy = ${this.strategy}
         GROUP BY term
-      ) df_table ON df_table.term = tf.term
-      WHERE tf.term = ANY(${terms}::text[])
-    `;
+      ) AS df_table
+        ON df_table.term = tf.term
+      WHERE
+        tf.strategy = ${this.strategy}
+        AND tf.term = ANY(${terms}::text[])
+      `;
 
     if (termRows.length === 0) return []
 
@@ -30,12 +44,14 @@ export class BM25Retriever implements Retrieval {
     const chunkRows = await sql<{ id: string; token_count: number; content: string; document_id: string; char_start: number; char_end: number }[]>`
       SELECT id, token_count, content, document_id, char_start, char_end
       FROM chunks
-      WHERE id = ANY(${candidateChunkIds}::text[])
+      WHERE strategy = ${this.strategy}
+      AND id = ANY(${candidateChunkIds}::text[])
     `;
 
     const [corpusStats] = await sql`
       SELECT COUNT(*) AS n, AVG(token_count) AS avg_doc_len
       FROM chunks
+      WHERE strategy = ${this.strategy}
     `;
 
 
@@ -54,6 +70,7 @@ export class BM25Retriever implements Retrieval {
 
     const chunkById = new Map(chunkRows.map((c) => [c.id, c]));
 
+    console.log("BM25:", performance.now() - bm25Start);
     return scored
       .map(({ chunkId, score }, index) => {
         const chunk = chunkById.get(chunkId);
