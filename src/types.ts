@@ -104,4 +104,34 @@ export interface Retrieval {
 }
 
 
+export interface RetrievalEvaluation {
+  id: string;
+  query: string;
+  k: number;
+  retrievedChunkIds: string[];
+  relevantChunkIds: string[];
+  precisionAtK: number;
+  recallAtK: number;
+  reciprocalRank: number;
+  ndcgAtK: number;
+  latencyMs: number;
+}
+
+export interface RetrievalSummary {
+  retrieverName: string;
+  k: number;
+  totalExamples: number;
+  averagePrecisionAtK: number;
+  averageRecallAtK: number;
+  averageReciprocalRank: number;
+  averageNdcgAtK: number;
+  averageLatencyMs: number;
+}
+
+export interface DatasetEvaluation {
+  summary: RetrievalSummary;
+  evaluations: RetrievalEvaluation[];
+}
+
+
 

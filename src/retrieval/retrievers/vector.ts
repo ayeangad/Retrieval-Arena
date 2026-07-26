@@ -34,7 +34,7 @@ export class VectorRetriever implements Retrieval {
     `;
 
     return rows.map((row) => ({
-      chunkId: row.chunk_id,
+      chunkId: row.id,
       documentId: row.document_id,
       content: row.content,
       charStart: row.char_start,
