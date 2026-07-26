@@ -1,5 +1,6 @@
 export type TextUnitType = "paragraph" | "codeblock" | "sentence"
 export type QueryType = "factual" | "multi-hop" | "keyword" | "semantic"
+export type ContextRole = "retrieved" | "neighbor-before" | "neighbor-after"
 export type MatchingTerm = { term: string, count: number }
 
 export interface RelevantSpan {
@@ -88,6 +89,7 @@ export interface RetrievalResult {
   content: string;
   charStart: number;
   charEnd: number;
+  retrievalRank: number;
   score: number;
   retrieverName: string;
 }
@@ -134,4 +136,44 @@ export interface DatasetEvaluation {
 }
 
 
+export interface GenerationResult {
+  answer: string;
+  usage: {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  }
+  latencyMs: number;
+  model: string;
+}
 
+export interface LLMGenerator {
+  readonly name: string;
+  generate(parameters: {
+    messages: PromptMessage[]
+  }): Promise<GenerationResult>;
+}
+
+
+export interface TokenUsage {
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+}
+
+export interface PromptMessage {
+  role: "system" | "user" | "assistant";
+  content: string;
+}
+
+export interface GenerationResult {
+  answer: string;
+  usage: TokenUsage;
+  latencyMs: number;
+  model: string;
+}
+
+export interface ContextChunk {
+  retrieval: RetrievalResult;
+  role: ContextRole;
+}
