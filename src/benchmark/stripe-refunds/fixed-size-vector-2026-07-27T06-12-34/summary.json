@@ -1,0 +1,27 @@
+{
+  "config": {
+    "chunker": "fixed-size",
+    "retriever": "vector",
+    "reranker": null,
+    "generator": "openai",
+    "judge": "openai-judge",
+    "k": 5
+  },
+  "totalExamples": 44,
+  "retrieval": {
+    "retrieverName": "vector",
+    "k": 5,
+    "totalExamples": 44,
+    "averagePrecisionAtK": 0.25454545454545446,
+    "averageRecallAtK": 0.8143939393939394,
+    "averageReciprocalRank": 0.6856060606060606,
+    "averageNdcgAtK": 0.6988461889571175,
+    "averageLatencyMs": 908.0546525454533
+  },
+  "averageCorrectness": 0.8295454545454546,
+  "averageFaithfulness": 0.8522727272727273,
+  "averagePromptTokens": 1333.4318181818182,
+  "averageCompletionTokens": 43.52272727272727,
+  "averageTotalTokens": 1376.9545454545455,
+  "averageGenerationLatencyMs": 1376.6158422500002
+}

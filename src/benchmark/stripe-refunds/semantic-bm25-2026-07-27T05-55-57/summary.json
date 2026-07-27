@@ -1,0 +1,27 @@
+{
+  "config": {
+    "chunker": "semantic",
+    "retriever": "bm25",
+    "reranker": null,
+    "generator": "openai",
+    "judge": "openai-judge",
+    "k": 5
+  },
+  "totalExamples": 44,
+  "retrieval": {
+    "retrieverName": "bm25",
+    "k": 5,
+    "totalExamples": 44,
+    "averagePrecisionAtK": 0.20568181818181824,
+    "averageRecallAtK": 0.8863636363636364,
+    "averageReciprocalRank": 0.7348484848484848,
+    "averageNdcgAtK": 0.7729971115218105,
+    "averageLatencyMs": 17.406857999999225
+  },
+  "averageCorrectness": 0.9204545454545454,
+  "averageFaithfulness": 0.9431818181818182,
+  "averagePromptTokens": 2440.3636363636365,
+  "averageCompletionTokens": 42.31818181818182,
+  "averageTotalTokens": 2482.681818181818,
+  "averageGenerationLatencyMs": 1615.30543565909
+}

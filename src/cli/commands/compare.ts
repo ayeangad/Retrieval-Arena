@@ -1,6 +1,6 @@
+import { defineCommand } from "citty";
 import { readdir } from "fs/promises";
 import path from "path";
-import { } from "../../types";
 import type { BenchmarkConfig, PipelineSummary } from "../../types";
 
 interface BenchmarkResult {
@@ -8,61 +8,77 @@ interface BenchmarkResult {
   summary: PipelineSummary;
 }
 
-const RESULTS_DIR = "results";
+export default defineCommand({
+  meta: {
+    name: "compare",
+    description: "Compare benchmark runs.",
+  },
 
-const folders = await readdir(RESULTS_DIR, {
-  withFileTypes: true,
-});
+  args: {
+    directory: {
+      type: "positional",
+      required: false,
+      default: "results",
+    },
+  },
 
-const results: BenchmarkResult[] = [];
+  async run({ args }) {
+    const resultsDir = args.directory;
 
-for (const folder of folders) {
-  if (!folder.isDirectory()) continue;
-
-  const folderPath = path.join(RESULTS_DIR, folder.name);
-
-  try {
-    const config = await Bun.file(
-      path.join(folderPath, "config.json")
-    ).json() as BenchmarkConfig;
-
-    const summary = await Bun.file(
-      path.join(folderPath, "summary.json")
-    ).json() as PipelineSummary;
-
-    results.push({
-      config,
-      summary,
+    const folders = await readdir(resultsDir, {
+      withFileTypes: true,
     });
-  } catch {
-    console.warn(`Skipping ${folder.name}`);
-  }
-}
 
-results.sort(
-  (a, b) =>
-    b.summary.averageCorrectness -
-    a.summary.averageCorrectness
-);
+    const results: BenchmarkResult[] = [];
 
-console.log("\n🏆 Retrieval Arena Leaderboard\n");
+    for (const folder of folders) {
+      if (!folder.isDirectory()) continue;
 
-console.table(
-  results.map((r, index) => ({
-    Rank: index + 1,
-    Chunker: r.config.chunker,
-    Retriever: r.config.retriever,
-    Correctness: r.summary.averageCorrectness.toFixed(3),
-    Faithfulness: r.summary.averageFaithfulness.toFixed(3),
-    Recall: r.summary.retrieval.averageRecallAtK.toFixed(3),
-    Precision: r.summary.retrieval.averagePrecisionAtK.toFixed(3),
-    MRR: r.summary.retrieval.averageReciprocalRank.toFixed(3),
-    nDCG: r.summary.retrieval.averageNdcgAtK.toFixed(3),
-    "Retrieval Latency (ms)":
-      r.summary.retrieval.averageLatencyMs.toFixed(2),
-    "Generation Latency (ms)":
-      r.summary.averageGenerationLatencyMs.toFixed(2),
-  }))
-);
+      const folderPath = path.join(resultsDir, folder.name);
 
+      try {
+        const config = await Bun.file(
+          path.join(folderPath, "config.json")
+        ).json() as BenchmarkConfig;
 
+        const summary = await Bun.file(
+          path.join(folderPath, "summary.json")
+        ).json() as PipelineSummary;
+
+        results.push({
+          config,
+          summary,
+        });
+      } catch {
+        console.warn(`Skipping ${folder.name}`);
+      }
+    }
+
+    results.sort(
+      (a, b) =>
+        b.summary.averageCorrectness -
+        a.summary.averageCorrectness
+    );
+
+    console.log("\n🏆 Retrieval Arena Leaderboard\n");
+
+    console.table(
+      results.map((r, index) => ({
+        Rank: index + 1,
+        Chunker: r.config.chunker,
+        Retriever: r.config.retriever,
+        Reranker: r.config.reranker ?? "-",
+        Correctness: r.summary.averageCorrectness.toFixed(3),
+        Faithfulness: r.summary.averageFaithfulness.toFixed(3),
+        Recall: r.summary.retrieval.averageRecallAtK.toFixed(3),
+        Precision: r.summary.retrieval.averagePrecisionAtK.toFixed(3),
+        MRR: r.summary.retrieval.averageReciprocalRank.toFixed(3),
+        nDCG: r.summary.retrieval.averageNdcgAtK.toFixed(3),
+        "Retrieval Latency (ms)":
+          r.summary.retrieval.averageLatencyMs.toFixed(2),
+        "Generation Latency (ms)":
+          r.summary.averageGenerationLatencyMs.toFixed(2),
+      }))
+    );
+  },
+});

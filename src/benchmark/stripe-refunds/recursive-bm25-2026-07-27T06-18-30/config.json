@@ -1,0 +1,10 @@
+{
+  "chunker": "recursive",
+  "retriever": "bm25",
+  "reranker": null,
+  "generator": "openai",
+  "judge": "openai-judge",
+  "topK": 5,
+  "dataset": "stripe-refunds",
+  "timestamp": "2026-07-27T06:18:30.227Z"
+}

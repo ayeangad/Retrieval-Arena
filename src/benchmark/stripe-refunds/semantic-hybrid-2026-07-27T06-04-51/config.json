@@ -1,0 +1,10 @@
+{
+  "chunker": "semantic",
+  "retriever": "hybrid",
+  "reranker": null,
+  "generator": "openai",
+  "judge": "openai-judge",
+  "topK": 5,
+  "dataset": "stripe-refunds",
+  "timestamp": "2026-07-27T06:04:51.225Z"
+}

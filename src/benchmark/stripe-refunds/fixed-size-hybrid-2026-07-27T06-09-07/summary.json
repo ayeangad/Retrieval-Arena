@@ -1,0 +1,27 @@
+{
+  "config": {
+    "chunker": "fixed-size",
+    "retriever": "hybrid",
+    "reranker": null,
+    "generator": "openai",
+    "judge": "openai-judge",
+    "k": 5
+  },
+  "totalExamples": 44,
+  "retrieval": {
+    "retrieverName": "hybrid",
+    "k": 5,
+    "totalExamples": 44,
+    "averagePrecisionAtK": 0.2863636363636364,
+    "averageRecallAtK": 0.9318181818181817,
+    "averageReciprocalRank": 0.7708333333333333,
+    "averageNdcgAtK": 0.7894148616338654,
+    "averageLatencyMs": 831.7323208636385
+  },
+  "averageCorrectness": 0.8863636363636364,
+  "averageFaithfulness": 0.9090909090909091,
+  "averagePromptTokens": 1323.7727272727273,
+  "averageCompletionTokens": 44.06818181818182,
+  "averageTotalTokens": 1367.840909090909,
+  "averageGenerationLatencyMs": 1612.1704851363625
+}
