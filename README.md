@@ -1,6 +1,6 @@
 # Retrieval Arena
 
-An eval-driven RAG and context engineering framework that measures retrieval quality as rigorously as you'd measure API latency.
+An eval-driven framework for benchmarking and comparing RAG and context engineering pipelines with reproducible metrics and benchmark artifacts.
 <!-- badges: build, license, bun, typescript -->
 
 <p align="center">
