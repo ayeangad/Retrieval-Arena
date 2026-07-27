@@ -1,17 +1,26 @@
 import { sql } from "../../db/client";
 import { stripeRefunds } from "../../eval/golden-dataset/stripeRefunds";
 import { evaluateDataset } from "../../eval/runner";
-import { VectorRetriever } from "../../retrieval/retrievers/vector";
-import { BM25Retriever } from "../../retrieval/retrievers/bm25retriever";
-import { HybridRetrieval } from "../../retrieval/retrievers/hybridretriever";
-import type { Chunk } from "../../types";
+import type { BenchmarkConfig, Chunk } from "../../types";
 import { printSummary } from "../output/summary";
 import { printFailures } from "../output/failures";
 import { OpenAIGenerator } from "../../generation/openai-generator";
 import { OpenAIJudge } from "../../judge/openai-judge";
+import { BM25Retriever } from "../../retrieval/retrievers/bm25retriever";
+import { saveResults } from "../../benchmark/save-results";
+import { LocalReranker } from "../../retrieval/reranker";
+import { VectorRetriever } from "../../retrieval/retrievers/vector";
+import { HybridRetrieval } from "../../retrieval/retrievers/hybridretriever";
+
 
 const K = 5;
-const CHUNKER_NAME = "fixed-size";
+const CHUNKER_NAME = "recursive";
+
+const ENABLE_RERANKER = false;
+
+const reranker = ENABLE_RERANKER
+  ? new LocalReranker()
+  : null;
 
 // Load chunks
 const rows = await sql`
@@ -39,11 +48,13 @@ const chunks: Chunk[] = rows.map((row) => ({
 
 
 // Build retriever
-const bm25 = new BM25Retriever()
+const vector = new VectorRetriever(CHUNKER_NAME)
+const bm25 = new BM25Retriever(CHUNKER_NAME)
+const hybrid = new HybridRetrieval(vector, bm25)
 
 
 // change this to benchmark different retrievers
-const retriever = bm25;
+const retriever = hybrid;
 
 // build generator + judge
 const generator = new OpenAIGenerator();
@@ -59,11 +70,32 @@ const { evaluations, summary } = await evaluateDataset(
   stripeRefunds,
   CHUNKER_NAME,
   retriever,
+  reranker,
   generator,
   judge,
   chunks,
   K,
 );
+
+const config: BenchmarkConfig = {
+  chunker: CHUNKER_NAME,
+  retriever: retriever.name,
+  reranker: reranker?.name ?? null,
+  generator: generator.name,
+  judge: judge.name,
+  topK: K,
+  dataset: "stripe-refunds",
+  timestamp: new Date().toISOString(),
+};
+
+const folder = await saveResults(
+  config,
+  summary,
+  evaluations
+);
+
+console.log(`Results saved to ${folder}`);
+
 
 
 printSummary(summary)

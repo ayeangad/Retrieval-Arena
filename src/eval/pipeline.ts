@@ -1,12 +1,13 @@
 import { ContextBuilder } from "../generation/context-builder";
 import { buildPrompt } from "../generation/prompt-builder";
-import type { Chunk, GoldenExample, Judge, LLMGenerator, PipelineEvaluation, Retrieval } from "../types";
+import type { Chunk, GoldenExample, Judge, LLMGenerator, PipelineEvaluation, Reranker, Retrieval } from "../types";
 import { evaluateRetrieval } from "./evaluator";
 
 
 export async function evaluatePipeline(
   example: GoldenExample,
   retriever: Retrieval,
+  reranker: Reranker | null,
   generator: LLMGenerator,
   judge: Judge,
   corpusChunks: Chunk[],
@@ -15,10 +16,28 @@ export async function evaluatePipeline(
 
   const start = performance.now();
   const retrievalStart = performance.now();
-  const retrievalResults = await retriever.retrieve({ query: example.query, k });
+
+  const retrievalK = reranker ? 20 : k
+
+  const retrievedResults = await retriever.retrieve({ query: example.query, k: retrievalK });
+
   console.log("Retrieval:", performance.now() - retrievalStart);
+  let retrievalResults = retrievedResults;
+
+  if (reranker) {
+    const rerankStart = performance.now();
+
+    retrievalResults = await reranker.rerank(
+      example.query,
+      retrievedResults,
+      k
+    );
+
+    console.log("Rerank:", performance.now() - rerankStart);
+  }
 
   const latencyMs = performance.now() - start;
+
 
   const retrieval = evaluateRetrieval(example, retrievalResults, latencyMs, corpusChunks, k);
 

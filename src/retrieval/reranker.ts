@@ -1,39 +1,52 @@
-import { pipeline, env } from "@huggingface/transformers"
-import type { Chunk, RerankResult } from "../types"
+import { pipeline, env } from "@huggingface/transformers";
+import type { RetrievalResult, Reranker } from "../types";
 
-
-export class LocalReranker {
-  private pipe: any = null
+export class LocalReranker implements Reranker {
+  readonly name = "bge-reranker-base";
+  private pipe: any = null;
 
   async init() {
-    env.allowLocalModels = false
+    env.allowLocalModels = false;
 
     if (!this.pipe) {
-      console.log("Loadingg Local Cross Encoding Model!")
-      this.pipe = await pipeline('text-classification', 'Xenova/bge-reranker-base');
+      console.log("Loading local cross-encoder...");
+      this.pipe = await pipeline(
+        "text-classification",
+        "Xenova/bge-reranker-base"
+      );
     }
   }
 
-  async rerank(query: string, chunks: Chunk[]): Promise<RerankResult[]> {
-    await this.init()
+  async rerank(
+    query: string,
+    results: RetrievalResult[],
+    k: number
+  ): Promise<RetrievalResult[]> {
 
-    const results: RerankResult[] = []
+    await this.init();
 
-    for (const chunk of chunks) {
-      const output = await this.pipe({
-        text: query,
-        text_pair: chunk.content
+    const scored = await Promise.all(
+      results.map(async (result) => {
+        const output = await this.pipe({
+          text: query,
+          text_pair: result.content,
+        });
+
+        return {
+          result,
+          score: output[0].score,
+        };
       })
+    );
 
-      results.push({
-        chunk,
-        score: output[0].score
-      })
-    }
-
-    return results.sort((a, b) => b.score - a.score)
+    return scored
+      .sort((a, b) => b.score - a.score)
+      .slice(0, k)
+      .map(({ result }, index) => ({
+        ...result,
+        retrievalRank: index + 1,
+      }));
   }
-
 }
 
 
