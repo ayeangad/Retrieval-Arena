@@ -2,7 +2,7 @@ import type { Retrieval, RetrievalResult } from "../../types";
 
 export class HybridRetrieval implements Retrieval {
   readonly name: string
-  constructor(private vectorRetriever: Retrieval, private bm25Retriever: Retrieval, private k: number = 60) {
+  constructor(private vectorRetriever: Retrieval, private bm25Retriever: Retrieval, private k: number = 20) {
     this.name = "hybrid"
   }
 
