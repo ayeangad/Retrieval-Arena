@@ -202,6 +202,7 @@ export interface PipelineEvaluation {
 export interface PipelineConfig {
   chunker: string;
   retriever: string;
+  reranker: Reranker | null;
   generator: string;
   judge: string;
   k: number;
@@ -218,3 +219,30 @@ export interface PipelineSummary {
   averageTotalTokens: number;
   averageGenerationLatencyMs: number;
 }
+
+export interface BenchmarkConfig {
+  chunker: string;
+  retriever: string;
+  reranker: string | null;
+  generator: string;
+  judge: string;
+  topK: number;
+  dataset: string;
+  timestamp: string;
+}
+
+export interface BenchmarkResult {
+  config: BenchmarkConfig;
+  summary: PipelineSummary;
+}
+
+export interface Reranker {
+  readonly name: string;
+  rerank(
+    query: string,
+    results: RetrievalResult[],
+    k: number
+  ): Promise<RetrievalResult[]>;
+}
+
+
