@@ -1,11 +1,11 @@
 import { readFileSync, readdirSync } from "fs";
 import path from "path";
 import { sql } from "../src/db/client";
-import { RecursiveChunker } from "../src/ingestion/chunkers/recursive"
 import { OpenAIEmbedder } from "../src/embeddings/openai-embedder.ts"
 import type { Document } from "../src/types"
 import { countTermFrequencies, tokenize } from "../src/retrieval/tokenize";
 import { FullDocumentContextualizer } from "../src/ingestion/contextualizer/FullDocument.ts";
+import { SemanticChunker } from "../src/ingestion/chunkers/semantic.ts";
 
 const CORPUS_DIR = "./data";
 const EMBEDDING_MODEL = "text-embedding-3-small";
@@ -24,7 +24,7 @@ function loadDocs(dir: string): Document[] {
 
 async function main() {
   const docs = loadDocs(CORPUS_DIR);
-  const chunker = new RecursiveChunker()
+  const chunker = new SemanticChunker()
   const embedder = new OpenAIEmbedder()
 
   for (const doc of docs) {

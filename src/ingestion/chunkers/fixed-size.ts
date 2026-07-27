@@ -5,6 +5,14 @@ const strategy = "fixed-size"
 export class FixedSizeChunker implements Chunker {
   readonly name: string
   constructor(private chunkSize: number, private overlap: number) {
+    if (chunkSize <= 0) {
+      throw new Error("chunkSize must be positive");
+    }
+
+    if (overlap < 0 || overlap >= chunkSize) {
+      throw new Error("overlap must be >= 0 and < chunkSize");
+    }
+
     this.name = `fixed-size-${chunkSize}`
   }
   async chunk(doc: Document): Promise<Chunk[]> {
