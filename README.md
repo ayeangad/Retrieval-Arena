@@ -4,7 +4,7 @@ An eval-driven framework for benchmarking and comparing RAG and context engineer
 <!-- badges: build, license, bun, typescript -->
 
 <p align="center">
-   <img src="images/leaderboard.png" alt="Retrieval Arena leaderboard output" width="800">
+   <img src="images/compare-with-reranker.png" alt="Retrieval Arena leaderboard output" width="800">
   <br>
   <em>Screenshot: `bun run src/cli/index.ts compare` output</em>
 </p>
