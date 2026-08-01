@@ -47,7 +47,7 @@ export default defineCommand({
 
     const K = Number(args.k);
     const CHUNKER_NAME = args.chunker;
-    const ENABLE_RERANKER = false;
+    const ENABLE_RERANKER = true;
 
     const reranker = ENABLE_RERANKER
       ? new LocalReranker()
